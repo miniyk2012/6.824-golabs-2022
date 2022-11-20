@@ -15,6 +15,7 @@ func main() {
 	}
 	http.ListenAndServe("localhost:8080", nil) // 为了不退出main, 并启动pprof的服务
 	// http://localhost:8080/debug/pprof/goroutine?debug=1
+	// go tool pprof http://localhost:8080/debug/pprof/goroutine
 }
 
 func f(x int) {
