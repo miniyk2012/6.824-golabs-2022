@@ -51,13 +51,12 @@ func (c *Coordinator) polling() {
 	for {
 		select {
 		case <-t.C:
-		case <-c.done:
-			return
-		default:
 			c.mutex.Lock()
 			scanMapTasks(c.mtasks)
 			scanReduceTasks(c.rtasks)
 			c.mutex.Unlock()
+		case <-c.done:
+			return
 		}
 	}
 }
@@ -67,7 +66,8 @@ func scanMapTasks(mtasks []MapTask) {
 		if mtasks[i].startTime == nil || mtasks[i].endTime != nil {
 			continue
 		}
-		if time.Until(*mtasks[i].startTime) > DefaultTimeout {
+		if -time.Until(*mtasks[i].startTime) > DefaultTimeout {
+			log.Printf("map task %d timeout, reset!", i)
 			mtasks[i].startTime = nil
 		}
 	}
@@ -78,7 +78,8 @@ func scanReduceTasks(rtasks []ReduceTask) {
 		if rtasks[i].startTime == nil || rtasks[i].endTime != nil {
 			continue
 		}
-		if time.Until(*rtasks[i].startTime) > DefaultTimeout {
+		if -time.Until(*rtasks[i].startTime) > DefaultTimeout {
+			log.Printf("reduce task %d timeout, reset!", i)
 			rtasks[i].startTime = nil
 		}
 	}
@@ -183,6 +184,7 @@ func (c *Coordinator) Done() bool {
 			return false
 		}
 	}
+	log.Println("coordinator has finished")
 	c.done <- true
 	return true
 }

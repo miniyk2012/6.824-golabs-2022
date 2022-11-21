@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
+
 //
 // Map functions return a slice of KeyValue.
 //
@@ -45,9 +49,9 @@ func Worker(mapf func(string, string) []KeyValue,
 	reducef func(string, []string) string) {
 
 	// Your worker implementation here.
+	log.Printf("start a new worker[%d]\n", os.Getpid())
 	ExecuteTask(mapf, reducef)
-
-	fmt.Println("all done")
+	log.Println("job done")
 	// uncomment to send the Example RPC to the coordinator.
 	// CallExample()
 
@@ -56,6 +60,12 @@ func Worker(mapf func(string, string) []KeyValue,
 // ExecuteTask 执行Task
 func ExecuteTask(mapf func(string, string) []KeyValue,
 	reducef func(string, []string) string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("worker[%d] panic, %v", os.Getpid(), r)
+			panic(r)
+		}
+	}()
 	for {
 		mapReply := askForMapTask()
 		if mapReply.AllMapTaskDone {
@@ -94,12 +104,13 @@ func doMapTask(reply AskMapReply, mapf func(string, string) []KeyValue) {
 		y := ihash(kv.Key) % reply.ReduceTaskNum
 		intermediate[y] = append(intermediate[y], kv)
 	}
-	for y, kvList := range intermediate {
+
+	for y := 0; y < reply.ReduceTaskNum; y++ {
 		tmpFile, err := ioutil.TempFile("", "map")
 		if err != nil {
 			log.Fatalf("cannot create tmp file")
 		}
-
+		kvList := intermediate[y]
 		enc := json.NewEncoder(tmpFile)
 		for _, kv := range kvList {
 			err := enc.Encode(&kv)
@@ -114,7 +125,7 @@ func doMapTask(reply AskMapReply, mapf func(string, string) []KeyValue) {
 			log.Printf("map cannot rename %v", oname)
 			return
 		}
-		log.Printf("create %v done", oname)
+		// log.Printf("create %v done", oname)
 	}
 	notifyTaskDone(0, reply.MapTaskNo)
 }
@@ -210,7 +221,7 @@ func askForMapTask() AskMapReply {
 	reply := AskMapReply{}
 	ok := call("Coordinator.MapTask", args, &reply)
 	if ok {
-		fmt.Printf("askForMapTask %v\n", reply)
+		// fmt.Printf("askForMapTask %v\n", reply)
 	} else {
 		fmt.Printf("call failed!\n")
 	}
@@ -222,7 +233,7 @@ func askForReduceTask() AskReduceReply {
 	reply := AskReduceReply{}
 	ok := call("Coordinator.ReduceTask", args, &reply)
 	if ok {
-		fmt.Printf("askForReduceTask %v\n", reply)
+		// fmt.Printf("askForReduceTask %v\n", reply)
 	} else {
 		fmt.Printf("call failed!\n")
 	}
