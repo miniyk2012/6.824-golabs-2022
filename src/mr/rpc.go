@@ -29,7 +29,7 @@ type AskMapReq struct {
 }
 
 type AskMapReply struct {
-	MapTaskNo      int    // 0 ~ m-1 个map Task的哪一个
+	MapTaskNo      int    // 0 ~ m-1 个map Task的哪一个, 如果-1表示没有空闲的task
 	ReduceTaskNum  int    // reduce阶段有几个task
 	FileName       string // 哪个input File
 	AllMapTaskDone bool   // 如果所有map task都已完成, 才可以做Reduce task
@@ -40,11 +40,11 @@ type AskReduceReq struct {
 
 type AskReduceReply struct {
 	MapTaskNum        int // map阶段有几个task, 方便遍历所需的intermediate files
-	ReduceTaskNo      int // 0 ~ r-1 个reduce Task的哪一个
+	ReduceTaskNo      int // 0 ~ r-1 个reduce Task的哪一个, 如果-1表示没有空闲的task
 	AllReduceTaskDone bool
 }
 
-// NotifyTaskDoneReq 告知reduce task已完成
+// NotifyTaskDoneReq 告知task已完成
 type NotifyTaskDoneReq struct {
 	TaskType int // 0: map task, 1: reduce task
 	TaskNo   int // 哪个task完成了
