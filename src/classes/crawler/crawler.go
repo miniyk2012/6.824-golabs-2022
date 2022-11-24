@@ -6,30 +6,6 @@ import (
 )
 
 //
-// Several solutions to the crawler exercise from the Go tutorial
-// https://tour.golang.org/concurrency/10
-//
-
-//
-// Serial crawler
-//
-
-func Serial(url string, fetcher Fetcher, fetched map[string]bool) {
-	if fetched[url] {
-		return
-	}
-	fetched[url] = true
-	urls, err := fetcher.Fetch(url)
-	if err != nil {
-		return
-	}
-	for _, u := range urls {
-		Serial(u, fetcher, fetched)
-	}
-	return
-}
-
-//
 // Concurrent crawler with shared state and Mutex
 //
 
@@ -107,21 +83,6 @@ func ConcurrentChannel(url string, fetcher Fetcher) {
 		ch <- []string{url}
 	}()
 	coordinator(ch, fetcher)
-}
-
-//
-// main
-//
-
-func main() {
-	fmt.Printf("=== Serial===\n")
-	Serial("http://golang.org/", fetcher, make(map[string]bool))
-
-	fmt.Printf("=== ConcurrentMutex ===\n")
-	ConcurrentMutex("http://golang.org/", fetcher, makeState())
-
-	fmt.Printf("=== ConcurrentChannel ===\n")
-	ConcurrentChannel("http://golang.org/", fetcher)
 }
 
 //
