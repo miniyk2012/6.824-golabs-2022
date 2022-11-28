@@ -16,7 +16,7 @@ import (
 	"os"
 	"plugin"
 
-	"6.824/mr"
+	"x6.824/mr"
 )
 
 func main() {

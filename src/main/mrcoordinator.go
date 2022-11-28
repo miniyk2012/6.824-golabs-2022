@@ -14,7 +14,7 @@ import (
 	"os"
 	"time"
 
-	"6.824/mr"
+	"x6.824/mr"
 )
 
 func main() {

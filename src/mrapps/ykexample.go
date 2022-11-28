@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"6.824/mr"
+	"x6.824/mr"
 )
 
 func Map(filename string, contents string) []mr.KeyValue {

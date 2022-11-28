@@ -14,7 +14,7 @@ import (
 	"plugin"
 	"sort"
 
-	"6.824/mr"
+	"x6.824/mr"
 )
 
 // for sorting by key.

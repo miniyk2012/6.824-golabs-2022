@@ -1,4 +1,4 @@
-module 6.824
+module x6.824
 
 go 1.18
 
